@@ -1,5 +1,9 @@
 export { TokenType } from './jwt-payload.type';
-export type { JwtTokenPayload } from './jwt-payload.type';
+export type {
+  JwtSessionPayload,
+  JwtTokenPayload,
+  JwtUserPayload,
+} from './jwt-payload.type';
 export type {
   AuthenticatedRequest,
   AuthenticatedSession,

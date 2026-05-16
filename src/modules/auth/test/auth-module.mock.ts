@@ -1,11 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from '@modules/auth/auth.service';
-import { UserService } from '@modules/user/user.service';
-import { mockUserService, mongooseTestModule } from '@common/test';
-import { RolesModule } from '@modules/user/roles/roles.module';
 import { AuthController } from '@modules/auth/auth.controller';
-import { mockJwtUtils } from '@common/test/mocks/services-and-libs/jwt-utils.mock';
-import { JwtUtils } from '@modules/auth/jwt/jwt.utils';
+import { AuthService } from '@modules/auth/auth.service';
+import { SessionsService } from '@modules/auth/sessions/sessions.service';
+import { UsersService } from '@modules/users/users.service';
+
+const mockUsersService = {
+  findUserByEmail: vi.fn(),
+  createUser: vi.fn(),
+  findUserById: vi.fn(),
+};
+
+const mockSessionsService = {
+  createOrReuse: vi.fn(),
+  rotate: vi.fn(),
+  revokeOne: vi.fn(),
+};
 
 export const mockAuthModule = async () => {
   const module: TestingModule = await Test.createTestingModule({
@@ -13,20 +22,21 @@ export const mockAuthModule = async () => {
     providers: [
       AuthService,
       {
-        provide: UserService,
-        useValue: mockUserService,
+        provide: UsersService,
+        useValue: mockUsersService,
       },
       {
-        provide: JwtUtils,
-        useValue: mockJwtUtils,
+        provide: SessionsService,
+        useValue: mockSessionsService,
       },
     ],
-    imports: [mongooseTestModule(), RolesModule],
   }).compile();
 
   return {
     module,
     mockAuthService: module.get<AuthService>(AuthService),
     mockAuthController: module.get<AuthController>(AuthController),
+    mockUsersService,
+    mockSessionsService,
   };
 };

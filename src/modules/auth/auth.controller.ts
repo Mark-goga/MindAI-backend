@@ -14,7 +14,11 @@ import { ENDPOINTS } from '@common/constants';
 import { CurrentSession, CurrentUser } from '@common/decorators';
 import { AccessTokenGuard, RefreshTokenGuard } from '@common/guards';
 import { SetRefreshTokenInterceptor } from '@common/interceptors';
-import type { AuthenticatedSession, AuthenticatedUser } from '@common/types';
+import type {
+  AuthenticatedRequest,
+  AuthenticatedSession,
+  AuthenticatedUser,
+} from '@common/types';
 import { LoginDto, RefreshDto, RegisterDto } from './dto';
 import { AuthService } from './auth.service';
 
@@ -47,7 +51,7 @@ export class AuthController {
     @Body() _dto: RefreshDto,
     @CurrentUser() user: AuthenticatedUser,
     @CurrentSession() session: AuthenticatedSession,
-    @Req() request: FastifyRequest,
+    @Req() request: AuthenticatedRequest,
   ) {
     return this.authService.refresh(user, session, request);
   }

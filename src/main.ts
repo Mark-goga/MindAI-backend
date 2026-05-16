@@ -4,18 +4,26 @@ import { CONFIG } from '@common/constants';
 import { Logger } from 'nestjs-pino';
 import { SwaggerModule } from '@nestjs/swagger';
 import { GlobalInterceptor } from '@common/interceptors';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
 import fastifyCookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { createSwaggerDocument } from '@common/swagger/swagger.util';
+import { DrizzleFilter } from '@common/exception-filters';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
-    bufferLogs: true,
-  });
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter(),
+    {
+      bufferLogs: true,
+    },
+  );
 
   await app.register(fastifyCookie as any);
   await app.register(helmet as any);
@@ -31,6 +39,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ZodValidationPipe());
 
   app.useGlobalInterceptors(new GlobalInterceptor());
+
+  app.useGlobalFilters(new DrizzleFilter());
 
   const document = createSwaggerDocument(app);
   SwaggerModule.setup('api', app, document);

@@ -1,9 +1,12 @@
 import type { FastifyRequest } from 'fastify';
-import type { sessions, users } from '@common/database/schema';
-import type { JwtTokenPayload } from './jwt-payload.type';
+import type {
+  JwtSessionPayload,
+  JwtTokenPayload,
+  JwtUserPayload,
+} from './jwt-payload.type';
 
-export type AuthenticatedUser = typeof users.$inferSelect;
-export type AuthenticatedSession = typeof sessions.$inferSelect;
+export type AuthenticatedUser = JwtUserPayload;
+export type AuthenticatedSession = JwtSessionPayload;
 
 export type AuthenticatedRequest = FastifyRequest & {
   auth: JwtTokenPayload;

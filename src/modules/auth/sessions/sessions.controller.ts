@@ -4,14 +4,14 @@ import { ENDPOINTS } from '@common/constants';
 import { CurrentSession, CurrentUser } from '@common/decorators';
 import { AccessTokenGuard } from '@common/guards';
 import type { AuthenticatedSession, AuthenticatedUser } from '@common/types';
-import { AuthSessionsService } from '@modules/auth/services/auth-sessions.service';
+import { SessionsService } from '@modules/auth/sessions/sessions.service';
 
 @Controller(`${ENDPOINTS.AUTH.BASE}/${ENDPOINTS.AUTH.SESSIONS.BASE}`)
 @ApiTags(`${ENDPOINTS.AUTH.BASE}/${ENDPOINTS.AUTH.SESSIONS.BASE}`)
 @ApiBearerAuth()
 @UseGuards(AccessTokenGuard)
 export class SessionsController {
-  constructor(private readonly authSessionsService: AuthSessionsService) {}
+  constructor(private readonly authSessionsService: SessionsService) {}
 
   @Get(ENDPOINTS.AUTH.SESSIONS.LIST.ENDPOINT)
   @ApiOperation(ENDPOINTS.AUTH.SESSIONS.LIST.DOCKS)

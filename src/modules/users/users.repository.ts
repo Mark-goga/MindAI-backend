@@ -1,24 +1,19 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import { DatabaseService } from '@common/database/database.service';
 import { users } from '@common/database/schema';
-import { ERROR_MESSAGES } from '@common/constants';
 
 @Injectable()
 export class UsersRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async create(input: typeof users.$inferInsert) {
-    try {
-      const [user] = await this.databaseService.db.insert(users).values(input).returning();
+    const [user] = await this.databaseService.db
+      .insert(users)
+      .values(input)
+      .returning();
 
-      return user;
-    } catch (error: any) {
-      if (error?.code === '23505') {
-        throw new ConflictException(ERROR_MESSAGES.USER.EMAIL_ALREADY_EXISTS);
-      }
-      throw error;
-    }
+    return user;
   }
 
   async findByEmail(email: string) {

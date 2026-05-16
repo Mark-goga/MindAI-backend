@@ -1,33 +1,45 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 import { ERROR_MESSAGES } from '@common/constants';
-import { AuthenticatedSession, AuthenticatedUser } from '@common/types';
+import type {
+  AuthenticatedRequest,
+  AuthenticatedSession,
+  AuthenticatedUser,
+} from '@common/types';
 import { LoginDto, RegisterDto } from './dto';
-import { UsersRepository } from './repositories';
-import { AuthSessionsService } from './services/auth-sessions.service';
-import { buildSessionRequestContext, hashPassword, verifyPassword } from './utils';
+import { SessionsService } from './sessions/sessions.service';
+import {
+  buildSessionRequestContext,
+  hashPassword,
+  verifyPassword,
+} from './utils';
+import { UsersService } from '@modules/users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersRepository: UsersRepository,
-    private readonly authSessionsService: AuthSessionsService,
+    private readonly userService: UsersService,
+    private readonly authSessionsService: SessionsService,
   ) {}
 
   async register(dto: RegisterDto, request: FastifyRequest) {
-    const existingUser = await this.usersRepository.findByEmail(dto.email);
+    const existingUser = await this.userService.findUserByEmail(dto.email);
     if (existingUser) {
       throw new ConflictException(ERROR_MESSAGES.USER.EMAIL_ALREADY_EXISTS);
     }
 
-    const user = await this.usersRepository.create({
+    const user = await this.userService.createUser({
       email: dto.email,
       name: dto.name,
       passwordHash: hashPassword(dto.password),
     });
 
     const { session, tokens } = await this.authSessionsService.createOrReuse(
-      user.id,
+      user,
       buildSessionRequestContext(request, dto),
     );
 
@@ -35,24 +47,34 @@ export class AuthService {
   }
 
   async login(dto: LoginDto, request: FastifyRequest) {
-    const user = await this.usersRepository.findByEmail(dto.email);
+    const user = await this.userService.findUserByEmail(dto.email);
     if (!user || !verifyPassword(dto.password, user.passwordHash)) {
       throw new UnauthorizedException(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
     }
 
     const { session, tokens } = await this.authSessionsService.createOrReuse(
-      user.id,
+      user,
       buildSessionRequestContext(request, dto),
     );
 
     return this.buildAuthResponse(user, session, tokens);
   }
 
-  async refresh(user: AuthenticatedUser, session: AuthenticatedSession, request: FastifyRequest) {
-    const { session: rotatedSession, tokens } = await this.authSessionsService.rotate(session, {
-      userAgent: request.headers['user-agent']?.trim() || null,
-      ipAddress: request.ip || null,
-    });
+  async refresh(
+    user: AuthenticatedUser,
+    session: AuthenticatedSession,
+    request: AuthenticatedRequest,
+  ) {
+    const { session: rotatedSession, tokens } =
+      await this.authSessionsService.rotate(
+        user,
+        session,
+        request.refreshToken!,
+        {
+          userAgent: request.headers['user-agent']?.trim() || null,
+          ipAddress: request.ip || null,
+        },
+      );
 
     return this.buildAuthResponse(user, rotatedSession, tokens);
   }
@@ -65,7 +87,11 @@ export class AuthService {
   }
 
   async logout(user: AuthenticatedUser, session: AuthenticatedSession) {
-    await this.authSessionsService.revokeOne(user.id, session.applicationId, session.id);
+    await this.authSessionsService.revokeOne(
+      user.id,
+      session.applicationId,
+      session.id,
+    );
     return { loggedOut: true };
   }
 
