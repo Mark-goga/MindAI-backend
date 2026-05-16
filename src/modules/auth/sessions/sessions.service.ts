@@ -3,14 +3,13 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
 import { ERROR_MESSAGES } from '@common/constants';
 import type {
   AuthenticatedSession,
   AuthenticatedUser,
   JwtSessionPayload,
 } from '@common/types';
-import { JwtUtils } from '@modules/auth/jwt/jwt.utils';
+import { createTokens, getRefreshTokenExpiresAt } from '@common/utils';
 import {
   hashToken,
   SessionRequestContext,
@@ -20,10 +19,7 @@ import { SessionsRepository } from '@modules/auth/sessions/sessions.repository';
 
 @Injectable()
 export class SessionsService {
-  constructor(
-    private readonly sessionsRepository: SessionsRepository,
-    private readonly jwtUtils: JwtUtils,
-  ) {}
+  constructor(private readonly sessionsRepository: SessionsRepository) {}
 
   async createOrReuse(user: AuthenticatedUser, context: SessionRequestContext) {
     const reusableSession =
@@ -35,26 +31,12 @@ export class SessionsService {
             context.deviceId,
           );
 
-    const sessionId = reusableSession?.id ?? randomUUID();
     const now = new Date();
-    const expiresAt = this.jwtUtils.getRefreshTokenExpiresAt();
-    const sessionPayload = this.buildSessionPayload({
-      id: sessionId,
-      userId: user.id,
-      ...context,
-      createdAt: reusableSession?.createdAt ?? now,
-      lastUsedAt: now,
-      expiresAt,
-    });
-    const tokens = this.jwtUtils.createTokens({
-      user,
-      session: sessionPayload,
-    });
+    const expiresAt = getRefreshTokenExpiresAt();
     const sharedData = {
       userId: user.id,
       applicationId: context.applicationId,
       platform: context.platform,
-      tokenHash: hashToken(tokens.refreshToken),
       deviceId: context.deviceId,
       userAgent: context.userAgent,
       ipAddress: context.ipAddress,
@@ -63,13 +45,55 @@ export class SessionsService {
       revokedAt: null,
     } as const;
 
-    const session = reusableSession
-      ? await this.sessionsRepository.updateById(sessionId, sharedData)
-      : await this.sessionsRepository.create({
-          id: sessionId,
-          createdAt: now,
+    if (reusableSession) {
+      const sessionPayload = this.buildSessionPayload({
+        id: reusableSession.id,
+        userId: user.id,
+        ...context,
+        createdAt: reusableSession.createdAt,
+        lastUsedAt: now,
+        expiresAt,
+      });
+      const tokens = createTokens({
+        user,
+        session: sessionPayload,
+      });
+      const session = await this.sessionsRepository.updateById(
+        reusableSession.id,
+        {
           ...sharedData,
-        });
+          tokenHash: hashToken(tokens.refreshToken),
+        },
+      );
+
+      if (!session) {
+        throw new NotFoundException(ERROR_MESSAGES.AUTH.SESSION_NOT_FOUND);
+      }
+
+      return { session, tokens };
+    }
+
+    const createdSession = await this.sessionsRepository.create({
+      ...sharedData,
+      createdAt: now,
+      tokenHash: '__pending__',
+    });
+
+    if (!createdSession) {
+      throw new NotFoundException(ERROR_MESSAGES.AUTH.SESSION_NOT_FOUND);
+    }
+
+    const sessionPayload = this.buildSessionPayload(createdSession);
+    const tokens = createTokens({
+      user,
+      session: sessionPayload,
+    });
+    const session = await this.sessionsRepository.updateById(
+      createdSession.id,
+      {
+        tokenHash: hashToken(tokens.refreshToken),
+      },
+    );
 
     if (!session) {
       throw new NotFoundException(ERROR_MESSAGES.AUTH.SESSION_NOT_FOUND);
@@ -98,7 +122,7 @@ export class SessionsService {
     }
 
     const lastUsedAt = new Date();
-    const expiresAt = this.jwtUtils.getRefreshTokenExpiresAt();
+    const expiresAt = getRefreshTokenExpiresAt();
     const nextSessionPayload = this.buildSessionPayload({
       ...storedSession,
       userAgent: context.userAgent,
@@ -106,7 +130,7 @@ export class SessionsService {
       lastUsedAt,
       expiresAt,
     });
-    const tokens = this.jwtUtils.createTokens({
+    const tokens = createTokens({
       user,
       session: nextSessionPayload,
     });

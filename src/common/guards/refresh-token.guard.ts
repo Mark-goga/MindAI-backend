@@ -1,18 +1,13 @@
 import {
   CanActivate,
   ExecutionContext,
-  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ERROR_MESSAGES } from '@common/constants';
-import { getAuthRequest } from '@common/utils';
-import { JwtUtils } from '@modules/auth/jwt/jwt.utils';
+import { getAuthRequest, verifyToken } from '@common/utils';
 import { TokenType } from '@common/types';
 
-@Injectable()
 export class RefreshTokenGuard implements CanActivate {
-  constructor(private readonly jwtUtils: JwtUtils) {}
-
   async canActivate(context: ExecutionContext) {
     const request = getAuthRequest(context);
     const requestBody = request.body as { refreshToken?: unknown } | undefined;
@@ -24,7 +19,7 @@ export class RefreshTokenGuard implements CanActivate {
       );
     }
 
-    const payload = this.jwtUtils.verifyToken(refreshToken, TokenType.REFRESH);
+    const payload = verifyToken(refreshToken, TokenType.REFRESH);
     request.auth = payload;
     request.user = payload.user;
     request.session = payload.session;

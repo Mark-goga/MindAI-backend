@@ -8,11 +8,12 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 import { users } from './users.schema';
+import { createUuid } from '@common/utils/uuid.util';
 
 export const sessions = pgTable(
   'sessions',
   {
-    id: uuid('id').defaultRandom().primaryKey(),
+    id: uuid('id').$defaultFn(createUuid).primaryKey(),
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
