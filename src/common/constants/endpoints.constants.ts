@@ -15,7 +15,8 @@ export const ENDPOINTS = {
       ENDPOINT: 'register',
       DOCKS: {
         summary: 'Register user',
-        description: 'Creates a user and starts an authenticated session for one application',
+        description:
+          'Creates a user and starts an authenticated session for one application',
       },
     },
     LOGIN: {
@@ -54,14 +55,16 @@ export const ENDPOINTS = {
         ENDPOINT: '',
         DOCKS: {
           summary: 'List sessions',
-          description: 'Lists the current user sessions within the current application scope',
+          description:
+            'Lists the current user sessions within the current application scope',
         },
       },
       REVOKE_ONE: {
         ENDPOINT: ':sessionId',
         DOCKS: {
           summary: 'Revoke one session',
-          description: 'Revokes a single session inside the current application scope',
+          description:
+            'Revokes a single session inside the current application scope',
         },
       },
       REVOKE_OTHERS: {

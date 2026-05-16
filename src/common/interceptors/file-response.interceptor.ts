@@ -1,4 +1,9 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import ExcelJS from 'exceljs';
@@ -20,7 +25,12 @@ export class FileResponseInterceptor implements NestInterceptor {
         }
 
         const response = context.switchToHttp().getResponse();
-        const { fileBuffer, fileName, fileType, contentType: contentTypeFromData } = data;
+        const {
+          fileBuffer,
+          fileName,
+          fileType,
+          contentType: contentTypeFromData,
+        } = data;
 
         let contentType = contentTypeFromData;
         if (!contentType) {
@@ -33,8 +43,14 @@ export class FileResponseInterceptor implements NestInterceptor {
         if (typeof response.header === 'function') {
           response.header('Content-Type', contentType);
           const encodedFileName = encodeURIComponent(fileName);
-          response.header('Content-Disposition', `attachment; filename*=UTF-8''${encodedFileName}`);
-          response.header('Access-Control-Expose-Headers', 'Content-Disposition');
+          response.header(
+            'Content-Disposition',
+            `attachment; filename*=UTF-8''${encodedFileName}`,
+          );
+          response.header(
+            'Access-Control-Expose-Headers',
+            'Content-Disposition',
+          );
           response.send(fileBuffer);
         } else if (typeof response.setHeader === 'function') {
           response.setHeader('Content-Type', contentType);

@@ -1,4 +1,11 @@
-import { Controller, Delete, Get, HttpCode, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ENDPOINTS } from '@common/constants';
 import { CurrentSession, CurrentUser } from '@common/decorators';
@@ -15,8 +22,15 @@ export class SessionsController {
 
   @Get(ENDPOINTS.AUTH.SESSIONS.LIST.ENDPOINT)
   @ApiOperation(ENDPOINTS.AUTH.SESSIONS.LIST.DOCKS)
-  list(@CurrentUser() user: AuthenticatedUser, @CurrentSession() session: AuthenticatedSession) {
-    return this.authSessionsService.listForApplication(user.id, session.applicationId, session.id);
+  list(
+    @CurrentUser() user: AuthenticatedUser,
+    @CurrentSession() session: AuthenticatedSession,
+  ) {
+    return this.authSessionsService.listForApplication(
+      user.id,
+      session.applicationId,
+      session.id,
+    );
   }
 
   @Delete(ENDPOINTS.AUTH.SESSIONS.REVOKE_OTHERS.ENDPOINT)
@@ -43,7 +57,11 @@ export class SessionsController {
     @CurrentUser() user: AuthenticatedUser,
     @CurrentSession() session: AuthenticatedSession,
   ) {
-    await this.authSessionsService.revokeOne(user.id, session.applicationId, sessionId);
+    await this.authSessionsService.revokeOne(
+      user.id,
+      session.applicationId,
+      sessionId,
+    );
     return { revoked: true };
   }
 }

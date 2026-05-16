@@ -8,7 +8,10 @@ export function hashPassword(password: string): string {
   return `${salt}:${derivedKey}`;
 }
 
-export function verifyPassword(password: string, storedPasswordHash: string): boolean {
+export function verifyPassword(
+  password: string,
+  storedPasswordHash: string,
+): boolean {
   const [salt, storedKey] = storedPasswordHash.split(':');
   if (!salt || !storedKey) {
     return false;

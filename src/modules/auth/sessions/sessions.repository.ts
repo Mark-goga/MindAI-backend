@@ -8,7 +8,10 @@ export class SessionsRepository {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async create(input: typeof sessions.$inferInsert) {
-    const [session] = await this.databaseService.db.insert(sessions).values(input).returning();
+    const [session] = await this.databaseService.db
+      .insert(sessions)
+      .values(input)
+      .returning();
 
     return session;
   }
@@ -28,14 +31,22 @@ export class SessionsRepository {
       .select()
       .from(sessions)
       .where(
-        and(eq(sessions.id, id), isNull(sessions.revokedAt), gt(sessions.expiresAt, new Date())),
+        and(
+          eq(sessions.id, id),
+          isNull(sessions.revokedAt),
+          gt(sessions.expiresAt, new Date()),
+        ),
       )
       .limit(1);
 
     return session ?? null;
   }
 
-  async findReusableActiveSession(userId: string, applicationId: string, deviceId: string) {
+  async findReusableActiveSession(
+    userId: string,
+    applicationId: string,
+    deviceId: string,
+  ) {
     const [session] = await this.databaseService.db
       .select()
       .from(sessions)
@@ -87,7 +98,11 @@ export class SessionsRepository {
     return result.length > 0;
   }
 
-  async revokeOthers(userId: string, applicationId: string, currentSessionId: string) {
+  async revokeOthers(
+    userId: string,
+    applicationId: string,
+    currentSessionId: string,
+  ) {
     const revokedAt = new Date();
     const result = await this.databaseService.db
       .update(sessions)

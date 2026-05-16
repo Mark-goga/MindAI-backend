@@ -16,8 +16,14 @@ const envSchema = z.object({
     .string()
     .min(1)
     .default('postgres://postgres:postgres@localhost:5432/mindai_backend'),
-  JWT_ACCESS_SECRET: z.string().min(32).default('dev-access-secret-dev-access-secret'),
-  JWT_REFRESH_SECRET: z.string().min(32).default('dev-refresh-secret-dev-refresh-secret'),
+  JWT_ACCESS_SECRET: z
+    .string()
+    .min(32)
+    .default('dev-access-secret-dev-access-secret'),
+  JWT_REFRESH_SECRET: z
+    .string()
+    .min(32)
+    .default('dev-refresh-secret-dev-refresh-secret'),
   JWT_ACCESS_TTL_SECONDS: z.coerce
     .number()
     .int()

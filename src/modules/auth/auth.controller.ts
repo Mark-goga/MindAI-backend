@@ -60,7 +60,10 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation(ENDPOINTS.AUTH.ME.DOCKS)
   @UseGuards(AccessTokenGuard)
-  me(@CurrentUser() user: AuthenticatedUser, @CurrentSession() session: AuthenticatedSession) {
+  me(
+    @CurrentUser() user: AuthenticatedUser,
+    @CurrentSession() session: AuthenticatedSession,
+  ) {
     return this.authService.me(user, session);
   }
 
@@ -69,7 +72,10 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation(ENDPOINTS.AUTH.LOGOUT.DOCKS)
   @UseGuards(AccessTokenGuard)
-  logout(@CurrentUser() user: AuthenticatedUser, @CurrentSession() session: AuthenticatedSession) {
+  logout(
+    @CurrentUser() user: AuthenticatedUser,
+    @CurrentSession() session: AuthenticatedSession,
+  ) {
     return this.authService.logout(user, session);
   }
 }
