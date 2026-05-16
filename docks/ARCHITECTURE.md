@@ -13,8 +13,8 @@ src/
 │   │   ├── endpoints.constants.ts  # All route strings & Swagger metadata → export ENDPOINTS
 │   │   ├── error-messages.constants.ts  # All error message strings → export ERROR_MESSAGES
 │   │   └── index.ts
-│   ├── database/                   # DB connection setup (TypeORM/Prisma config)
-│   ├── decorators/                 # Custom NestJS decorators (@CurrentUser, @IsPublic, etc.)
+│   ├── database/                   # PostgreSQL pool + Drizzle service/schema
+│   ├── decorators/                 # Custom NestJS decorators (@CurrentUser, @CurrentSession, etc.)
 │   ├── dto/                        # DTOs shared by 2+ modules (e.g. PaginationDto)
 │   ├── entity/                     # Base entities / shared entities
 │   ├── guards/                     # Auth guards used globally or by many modules
@@ -28,15 +28,27 @@ src/
 │           └── services-and-libs/  # Service/library mocks
 │
 └── modules/                        # Feature modules — each module is self-contained
-    └── health/                     # Reference implementation
-        ├── health.module.ts
-        ├── health.controller.ts
-        ├── health.service.ts
-        ├── health.controller.spec.ts
-        ├── health.service.spec.ts
-        └── dto/
-            ├── health-status.dto.ts
-            └── index.ts
+    ├── health/                     # Reference implementation
+    │   ├── health.module.ts
+    │   ├── health.controller.ts
+    │   ├── health.service.ts
+    │   ├── health.controller.spec.ts
+    │   ├── health.service.spec.ts
+    │   └── dto/
+    │       ├── health-status.dto.ts
+    │       └── index.ts
+    └── auth/                       # Auth + stateful sessions
+        ├── auth.module.ts
+        ├── auth-core.module.ts
+        ├── auth.controller.ts
+        ├── auth.service.ts
+        ├── dto/
+        ├── jwt/
+        ├── repositories/
+        ├── services/
+        ├── sub-modules/
+        │   └── sessions/
+        └── utils/
 ```
 
 ---

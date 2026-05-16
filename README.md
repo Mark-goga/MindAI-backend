@@ -2,13 +2,14 @@
 
 ## Setup
 
-Requires **Node.js 24+** and **Yarn**.
+Requires **Node.js 24+**, **Yarn**, and **PostgreSQL**.
 
 ```bash
 cp .env.example .env
 # fill in required values in .env
 
 yarn install
+yarn db:migrate
 yarn dev
 ```
 
@@ -20,6 +21,10 @@ Swagger UI: `http://localhost:3000/api`
 yarn dev          # development with watch
 yarn build        # compile TypeScript
 yarn start:prod   # production
+yarn swagger:generate # generate swagger.json and swagger.yaml
+yarn db:generate  # generate Drizzle SQL migrations
+yarn db:migrate   # apply Drizzle migrations to Postgres
+yarn db:studio    # open Drizzle Studio
 
 yarn test         # unit tests (vitest)
 yarn test:e2e     # end-to-end tests

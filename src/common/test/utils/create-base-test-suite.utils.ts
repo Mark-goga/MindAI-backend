@@ -4,9 +4,7 @@ type TestSuiteOptions = {
 
 const fn = () => {};
 
-export function createBaseTestSuits({
-  skipCloseServer = false,
-}: TestSuiteOptions = {}): void {
+export function createBaseTestSuits({ skipCloseServer = false }: TestSuiteOptions = {}): void {
   afterEach(() => {
     vitest.clearAllMocks();
   });

@@ -11,7 +11,8 @@
 | Logging         | nestjs-pino + pino-pretty                |
 | API Docs        | @nestjs/swagger (Swagger UI at `/api`)   |
 | File handling   | exceljs + file-type + @fastify/multipart |
-| Auth            | jsonwebtoken + @fastify/cookie           |
+| Database        | PostgreSQL + Drizzle ORM + drizzle-kit   |
+| Auth            | jsonwebtoken + stateful refresh sessions |
 | Testing         | Vitest + @nestjs/testing + supertest     |
 | Package manager | Yarn                                     |
 
@@ -21,6 +22,8 @@
 yarn dev          # development with watch
 yarn start:prod   # production
 yarn build        # compile TypeScript
+yarn db:generate  # generate SQL migrations from Drizzle schema
+yarn db:migrate   # apply SQL migrations to PostgreSQL
 ```
 
 ## Environment
@@ -30,15 +33,19 @@ Minimum required `.env` (see `.env.example`):
 ```
 PORT=3000
 NODE_ENV=dev
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/mindai_backend
+JWT_ACCESS_SECRET=dev-access-secret-dev-access-secret
+JWT_REFRESH_SECRET=dev-refresh-secret-dev-refresh-secret
 ```
 
 All env vars are validated at startup via Zod. If a required var is missing, the process exits immediately.
 
 ## Current modules
 
-| Module | Routes                | Status      |
-|--------|-----------------------|-------------|
-| health | `POST /health/status` | Implemented |
+| Module | Routes                                                                                                                                                                                         | Status      |
+|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
+| health | `POST /health/status`                                                                                                                                                                          | Implemented |
+| auth   | `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `GET /auth/me`, `POST /auth/logout`, `GET /auth/sessions`, `DELETE /auth/sessions/:sessionId`, `DELETE /auth/sessions/others` | Implemented |
 
 ## Testing
 
@@ -56,6 +63,8 @@ yarn test:watch   # watch mode
 3. **All routes defined in constants** — `ENDPOINTS` in `common/constants/endpoints.constants.ts`
 4. **All env vars validated** — `CONFIG` from `common/constants/config.constant.ts`
 5. **Path aliases** — always `@common/`, `@modules/`, `@app/` instead of relative paths
+6. **Refresh token goes in request body** — refresh flow is body-based for cross-platform clients; cookie is optional
+   convenience for web
 
 ## Documentation files
 
