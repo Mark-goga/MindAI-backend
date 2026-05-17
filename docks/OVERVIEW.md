@@ -24,6 +24,18 @@ yarn start:prod   # production
 yarn build        # compile TypeScript
 yarn db:generate  # generate SQL migrations from Drizzle schema
 yarn db:migrate   # apply SQL migrations to PostgreSQL
+yarn db:seed      # seed all tables (users, sessions, releases)
+```
+
+### Seed targets
+
+The seed runner supports individual targets:
+
+```bash
+yarn db:seed users     # seed only users
+yarn db:seed sessions  # seed users + sessions
+yarn db:seed releases  # seed only releases
+yarn db:seed all       # seed everything (default)
 ```
 
 ## Environment
@@ -42,10 +54,11 @@ All env vars are validated at startup via Zod. If a required var is missing, the
 
 ## Current modules
 
-| Module | Routes                                                                                                                                                                                         | Status      |
-|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
-| health | `POST /health/status`                                                                                                                                                                          | Implemented |
-| auth   | `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `GET /auth/me`, `POST /auth/logout`, `GET /auth/sessions`, `DELETE /auth/sessions/:sessionId`, `DELETE /auth/sessions/others` | Implemented |
+| Module   | Routes                                                                                                                                                                                          | Status      |
+|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|
+| health   | `GET /health/status`                                                                                                                                                                            | Implemented |
+| auth     | `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `GET /auth/me`, `POST /auth/logout`, `GET /auth/sessions`, `DELETE /auth/sessions/:sessionId`, `DELETE /auth/sessions/others` | Implemented |
+| releases | `GET /releases/check`, `POST /releases`, `GET /releases`, `DELETE /releases/:id`                                                                                                                | Implemented |
 
 ## Testing
 
@@ -61,10 +74,13 @@ yarn test:watch   # watch mode
 1. **All responses are wrapped** — `GlobalInterceptor` adds `{ success: true, data: ... }` automatically
 2. **All DTOs use Zod** — via `createZodDto`, validated globally by `ZodValidationPipe`
 3. **All routes defined in constants** — `ENDPOINTS` in `common/constants/endpoints.constants.ts`
-4. **All env vars validated** — `CONFIG` from `common/constants/config.constant.ts`
-5. **Path aliases** — always `@common/`, `@modules/`, `@app/` instead of relative paths
-6. **Refresh token goes in request body** — refresh flow is body-based for cross-platform clients; cookie is optional
-   convenience for web
+4. **All error messages defined in constants** — `ERROR_MESSAGES` in `common/constants/error-messages.constants.ts`
+5. **All env vars validated** — `CONFIG` from `common/constants/config.constant.ts`
+6. **Path aliases** — always `@common/`, `@modules/`, `@app/` instead of relative paths
+7. **Enums live in one place** — `common/database/schema/enums.schema.ts` exports both the Drizzle `pgEnum` and a `as const` array (e.g. `PLATFORM_VALUES`) for reuse in Zod schemas and TypeScript types
+8. **Every table has a seed script** — `common/database/seed-data/seed-<table>.ts`, registered in both `seed.ts` and `seed-runner.ts`
+9. **Repository pattern** — DB access lives in `<feature>.repository.ts`, never directly in services
+10. **Refresh token in cookie** — set via `SetRefreshTokenInterceptor`, read from `request.cookies.refreshToken` on refresh
 
 ## Documentation files
 

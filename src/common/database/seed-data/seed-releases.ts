@@ -154,10 +154,7 @@ const SEED_RELEASES: ReleaseInsert[] = [
 export async function seedReleases(context: SeedContext): Promise<number> {
   console.log(`Seeding ${SEED_RELEASES.length} releases...`);
 
-  await context.db
-    .insert(releases)
-    .values(SEED_RELEASES)
-    .onConflictDoNothing();
+  await context.db.insert(releases).values(SEED_RELEASES).onConflictDoNothing();
 
   console.log(`Releases seeded.`);
 
