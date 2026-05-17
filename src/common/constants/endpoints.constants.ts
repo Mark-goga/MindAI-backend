@@ -91,14 +91,16 @@ export const ENDPOINTS = {
       ENDPOINT: '',
       DOCKS: {
         summary: 'Create release',
-        description: 'Creates a new release entry for an app and platform (admin only)',
+        description:
+          'Creates a new release entry for an app and platform (admin only)',
       },
     },
     LIST: {
       ENDPOINT: '',
       DOCKS: {
         summary: 'List releases',
-        description: 'Returns all releases, optionally filtered by appId and platform (admin only)',
+        description:
+          'Returns all releases, optionally filtered by appId and platform (admin only)',
       },
     },
     DELETE: {

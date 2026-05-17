@@ -2,6 +2,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { CONFIG, ERROR_MESSAGES } from '@common/constants';
+import { PLATFORM_VALUES, USER_ROLE_VALUES } from '@common/database/schema';
 import {
   JwtSessionPayload,
   JwtTokenPayload,
@@ -15,7 +16,7 @@ const jwtUserPayloadSchema = z.object({
   id: z.uuid(),
   email: z.email(),
   name: z.string().min(1),
-  role: z.enum(['admin', 'customer']),
+  role: z.enum(USER_ROLE_VALUES),
   createdAt: dateSchema,
   updatedAt: dateSchema,
 }) satisfies z.ZodType<JwtUserPayload>;
@@ -24,7 +25,7 @@ const jwtSessionPayloadSchema = z.object({
   id: z.uuid(),
   userId: z.uuid(),
   applicationId: z.string().min(1),
-  platform: z.string().nullable(),
+  platform: z.enum(PLATFORM_VALUES).nullable(),
   deviceId: z.string().nullable(),
   userAgent: z.string().nullable(),
   ipAddress: z.string().nullable(),

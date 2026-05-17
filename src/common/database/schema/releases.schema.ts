@@ -1,6 +1,5 @@
 import {
   pgTable,
-  pgEnum,
   uuid,
   varchar,
   text,
@@ -11,14 +10,7 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { createUuid } from '@common/utils/uuid.util';
-
-export const platformEnum = pgEnum('platform', [
-  'ios',
-  'android',
-  'desktop_win',
-  'desktop_mac',
-  'web',
-]);
+import { platformEnum } from './enums.schema';
 
 export const releases = pgTable(
   'releases',
@@ -29,6 +21,7 @@ export const releases = pgTable(
     version: varchar('version', { length: 30 }).notNull(),
     minVersion: varchar('min_version', { length: 30 }).notNull(),
     isMandatory: boolean('is_mandatory').default(false).notNull(),
+    isReleased: boolean('is_released').default(false).notNull(),
     downloadUrl: text('download_url'),
     storeUrl: text('store_url'),
     releaseNotes: jsonb('release_notes').$type<Record<string, string>>(),

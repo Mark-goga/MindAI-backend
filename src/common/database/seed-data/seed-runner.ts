@@ -1,3 +1,4 @@
+import { seedReleases } from './seed-releases';
 import { seedSessions } from './seed-sessions';
 import { createSeedContext } from './seed-shared';
 import { seedUsers } from './seed-users';
@@ -20,11 +21,20 @@ const seeders = {
       await context.close();
     }
   },
+  releases: async () => {
+    const context = createSeedContext();
+    try {
+      await seedReleases(context);
+    } finally {
+      await context.close();
+    }
+  },
   all: async () => {
     const context = createSeedContext();
     try {
       const users = await seedUsers(context);
       await seedSessions(context, users);
+      await seedReleases(context);
     } finally {
       await context.close();
     }

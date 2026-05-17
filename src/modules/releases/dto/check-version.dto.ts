@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { createZodDto } from 'nestjs-zod';
+import { PLATFORM_VALUES } from '@common/database/schema';
 
 const semverRegex = /^\d+\.\d+\.\d+$/;
 
 const checkVersionSchema = z.object({
   appId: z.string().trim().min(1).max(50),
-  platform: z.enum(['ios', 'android', 'desktop_win', 'desktop_mac', 'web']),
+  platform: z.enum(PLATFORM_VALUES),
   version: z.string().regex(semverRegex, 'Must be a valid semver (e.g. 1.2.3)'),
 });
 

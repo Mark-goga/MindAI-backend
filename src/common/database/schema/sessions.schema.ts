@@ -9,6 +9,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { users } from './users.schema';
 import { createUuid } from '@common/utils/uuid.util';
+import { platformEnum } from './enums.schema';
 
 export const sessions = pgTable(
   'sessions',
@@ -18,7 +19,7 @@ export const sessions = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     applicationId: varchar('application_id', { length: 50 }).notNull(),
-    platform: varchar('platform', { length: 20 }),
+    platform: platformEnum('platform'),
     tokenHash: text('token_hash').notNull(),
     deviceId: text('device_id'),
     userAgent: text('user_agent'),

@@ -1,3 +1,4 @@
+import { seedReleases } from './seed-releases';
 import { seedSessions } from './seed-sessions';
 import { createSeedContext } from './seed-shared';
 import { seedUsers } from './seed-users';
@@ -10,6 +11,7 @@ async function main() {
 
     const users = await seedUsers(context);
     await seedSessions(context, users);
+    await seedReleases(context);
 
     console.log('Seeding finished.');
   } finally {

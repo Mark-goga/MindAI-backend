@@ -15,6 +15,7 @@ export const ERROR_MESSAGES = {
   RELEASES: {
     FORBIDDEN: 'Insufficient permissions to perform this action.',
     NOT_FOUND: 'Release was not found.',
-    VERSION_CONFLICT: 'A release with this version already exists for this app and platform.',
+    VERSION_CONFLICT:
+      'A release with this version already exists for this app and platform.',
   },
 } as const;

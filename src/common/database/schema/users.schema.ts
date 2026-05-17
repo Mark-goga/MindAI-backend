@@ -1,6 +1,5 @@
 import {
   pgTable,
-  pgEnum,
   timestamp,
   uuid,
   varchar,
@@ -8,8 +7,7 @@ import {
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { createUuid } from '@common/utils/uuid.util';
-
-export const userRoleEnum = pgEnum('user_role', ['admin', 'customer']);
+import { userRoleEnum } from './enums.schema';
 
 export const users = pgTable(
   'users',

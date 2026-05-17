@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { and, desc, eq } from 'drizzle-orm';
 import { DatabaseService } from '@common/database/database.service';
 import { releases } from '@common/database/schema';
-
-type Platform = (typeof releases.$inferSelect)['platform'];
+import type { Platform } from '@common/database/schema';
 
 @Injectable()
 export class ReleasesRepository {
@@ -22,7 +21,13 @@ export class ReleasesRepository {
     const [release] = await this.databaseService.db
       .select()
       .from(releases)
-      .where(and(eq(releases.appId, appId), eq(releases.platform, platform)))
+      .where(
+        and(
+          eq(releases.appId, appId),
+          eq(releases.platform, platform),
+          eq(releases.isReleased, true),
+        ),
+      )
       .orderBy(desc(releases.createdAt))
       .limit(1);
 
@@ -30,21 +35,15 @@ export class ReleasesRepository {
   }
 
   async list(appId?: string, platform?: Platform) {
-    const conditions = [];
-
-    if (appId) {
-      // @ts-ignore
-      conditions.push(eq(releases.appId, appId));
-    }
-    if (platform) {
-      // @ts-ignore
-      conditions.push(eq(releases.platform, platform));
-    }
-
     return this.databaseService.db
       .select()
       .from(releases)
-      .where(conditions.length ? and(...conditions) : undefined)
+      .where(
+        and(
+          appId ? eq(releases.appId, appId) : undefined,
+          platform ? eq(releases.platform, platform) : undefined,
+        ),
+      )
       .orderBy(desc(releases.createdAt));
   }
 
