@@ -7,7 +7,7 @@ export enum TokenType {
 
 export type JwtUserPayload = Pick<
   typeof users.$inferSelect,
-  'id' | 'email' | 'name' | 'createdAt' | 'updatedAt'
+  'id' | 'email' | 'name' | 'role' | 'createdAt' | 'updatedAt'
 >;
 
 export type JwtSessionPayload = Pick<

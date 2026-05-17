@@ -5,10 +5,11 @@ import {
   HttpCode,
   Post,
   Req,
+  Res,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import type { FastifyRequest } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ENDPOINTS } from '@common/constants';
 import { CurrentSession, CurrentUser } from '@common/decorators';
@@ -75,7 +76,8 @@ export class AuthController {
   logout(
     @CurrentUser() user: AuthenticatedUser,
     @CurrentSession() session: AuthenticatedSession,
+    @Res({ passthrough: true }) response: FastifyReply,
   ) {
-    return this.authService.logout(user, session);
+    return this.authService.logout(user, session, response);
   }
 }

@@ -13,4 +13,5 @@ export type AuthenticatedRequest = FastifyRequest & {
   user: AuthenticatedUser;
   session: AuthenticatedSession;
   refreshToken?: string;
+  cookies: Record<string, string>;
 };

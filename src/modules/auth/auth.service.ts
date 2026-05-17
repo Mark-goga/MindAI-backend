@@ -1,10 +1,7 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import type { FastifyRequest } from 'fastify';
-import { ERROR_MESSAGES } from '@common/constants';
+import '@fastify/cookie';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import { CONFIG, ERROR_MESSAGES, NODE_ENV } from '@common/constants';
 import type {
   AuthenticatedRequest,
   AuthenticatedSession,
@@ -27,11 +24,6 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto, request: FastifyRequest) {
-    const existingUser = await this.userService.findUserByEmail(dto.email);
-    if (existingUser) {
-      throw new ConflictException(ERROR_MESSAGES.USER.EMAIL_ALREADY_EXISTS);
-    }
-
     const user = await this.userService.createUser({
       email: dto.email,
       name: dto.name,
@@ -86,12 +78,24 @@ export class AuthService {
     };
   }
 
-  async logout(user: AuthenticatedUser, session: AuthenticatedSession) {
+  async logout(
+    user: AuthenticatedUser,
+    session: AuthenticatedSession,
+    response: FastifyReply,
+  ) {
     await this.authSessionsService.revokeOne(
       user.id,
       session.applicationId,
       session.id,
     );
+
+    response.clearCookie('refreshToken', {
+      path: '/',
+      httpOnly: true,
+      secure: CONFIG.NODE_ENV === NODE_ENV.PROD,
+      sameSite: 'strict',
+    });
+
     return { loggedOut: true };
   }
 

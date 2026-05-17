@@ -77,4 +77,36 @@ export const ENDPOINTS = {
       },
     },
   },
+  RELEASES: {
+    BASE: 'releases',
+    CHECK: {
+      ENDPOINT: 'check',
+      DOCKS: {
+        summary: 'Check for updates',
+        description:
+          'Returns the latest release for an app and platform, including whether an update is available or required',
+      },
+    },
+    CREATE: {
+      ENDPOINT: '',
+      DOCKS: {
+        summary: 'Create release',
+        description: 'Creates a new release entry for an app and platform (admin only)',
+      },
+    },
+    LIST: {
+      ENDPOINT: '',
+      DOCKS: {
+        summary: 'List releases',
+        description: 'Returns all releases, optionally filtered by appId and platform (admin only)',
+      },
+    },
+    DELETE: {
+      ENDPOINT: ':id',
+      DOCKS: {
+        summary: 'Delete release',
+        description: 'Deletes a release by id (admin only)',
+      },
+    },
+  },
 } as const;

@@ -86,7 +86,7 @@ export async function seedSessions(
     ),
   );
 
-  const rowsToInsert: typeof sessions.$inferInsert[] = [];
+  const rowsToInsert: (typeof sessions.$inferInsert)[] = [];
 
   for (const user of seededUsers) {
     const sessionsCount = faker.number.int({
@@ -124,6 +124,7 @@ export async function seedSessions(
         user: {
           id: user.id,
           email: user.email,
+          role: user.role,
           name: user.name,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,

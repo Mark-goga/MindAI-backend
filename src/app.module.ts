@@ -4,6 +4,7 @@ import { CONFIG, NODE_ENV } from '@common/constants';
 import { DatabaseModule } from '@common/database/database.module';
 import { HealthModule } from '@modules/health/health.module';
 import { AuthModule } from '@modules/auth/auth.module';
+import { ReleasesModule } from '@modules/releases/releases.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AuthModule } from '@modules/auth/auth.module';
     DatabaseModule,
     HealthModule,
     AuthModule,
+    ReleasesModule,
   ],
 })
 export class AppModule {}

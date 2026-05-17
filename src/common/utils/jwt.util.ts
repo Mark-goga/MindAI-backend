@@ -15,6 +15,7 @@ const jwtUserPayloadSchema = z.object({
   id: z.uuid(),
   email: z.email(),
   name: z.string().min(1),
+  role: z.enum(['admin', 'customer']),
   createdAt: dateSchema,
   updatedAt: dateSchema,
 }) satisfies z.ZodType<JwtUserPayload>;

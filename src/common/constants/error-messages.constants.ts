@@ -12,4 +12,9 @@ export const ERROR_MESSAGES = {
     EMAIL_ALREADY_EXISTS: 'User with this email already exists.',
     USER_NOT_FOUND: 'User was not found.',
   },
+  RELEASES: {
+    FORBIDDEN: 'Insufficient permissions to perform this action.',
+    NOT_FOUND: 'Release was not found.',
+    VERSION_CONFLICT: 'A release with this version already exists for this app and platform.',
+  },
 } as const;

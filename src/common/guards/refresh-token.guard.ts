@@ -11,7 +11,9 @@ export class RefreshTokenGuard implements CanActivate {
   async canActivate(context: ExecutionContext) {
     const request = getAuthRequest(context);
     const requestBody = request.body as { refreshToken?: unknown } | undefined;
-    const refreshToken = requestBody?.refreshToken;
+
+    const refreshToken =
+      request.cookies?.refreshToken || requestBody?.refreshToken;
 
     if (typeof refreshToken !== 'string' || !refreshToken) {
       throw new UnauthorizedException(

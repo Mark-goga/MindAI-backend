@@ -12,18 +12,9 @@ export enum NODE_ENV {
 const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   NODE_ENV: z.nativeEnum(NODE_ENV).default(NODE_ENV.DEV),
-  DATABASE_URL: z
-    .string()
-    .min(1)
-    .default('postgres://postgres:postgres@localhost:5432/mindai_backend'),
-  JWT_ACCESS_SECRET: z
-    .string()
-    .min(32)
-    .default('dev-access-secret-dev-access-secret'),
-  JWT_REFRESH_SECRET: z
-    .string()
-    .min(32)
-    .default('dev-refresh-secret-dev-refresh-secret'),
+  DATABASE_URL: z.string().min(1),
+  JWT_ACCESS_SECRET: z.string().min(32),
+  JWT_REFRESH_SECRET: z.string().min(32),
   JWT_ACCESS_TTL_SECONDS: z.coerce
     .number()
     .int()
