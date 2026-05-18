@@ -110,5 +110,14 @@ export const ENDPOINTS = {
         description: 'Deletes a release by id (admin only)',
       },
     },
+    APPCAST: {
+      ENDPOINT: 'appcast.xml',
+      DOCKS: {
+        summary: 'Sparkle appcast feed',
+        description:
+          'Returns a Sparkle-compatible appcast XML feed for a given appId and platform. ' +
+          'Consumed by auto_updater (Sparkle / WinSparkle) on desktop clients.',
+      },
+    },
   },
 } as const;

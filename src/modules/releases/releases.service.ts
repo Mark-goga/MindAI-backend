@@ -33,6 +33,37 @@ export class ReleasesService {
     return { deleted: true };
   }
 
+  async generateAppcast(appId: string, platform: string): Promise<string> {
+    const all = await this.releasesRepository.list(appId, platform as never);
+    const released = all.filter(r => r.isReleased && r.downloadUrl);
+
+    const items = released
+      .map(
+        r => `
+    <item>
+      <title>Version ${r.version}</title>
+      <sparkle:version>${r.version}</sparkle:version>
+      <sparkle:shortVersionString>${r.version}</sparkle:shortVersionString>
+      <enclosure
+        url="${r.downloadUrl}"
+        sparkle:version="${r.version}"
+        length="0"
+        type="application/octet-stream"
+      />
+    </item>`,
+      )
+      .join('\n');
+
+    return `<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>${appId} Updates</title>
+    <link>${appId}</link>
+    <language>en</language>${items}
+  </channel>
+</rss>`;
+  }
+
   async checkVersion(dto: CheckVersionDto) {
     const latest = await this.releasesRepository.findLatest(
       dto.appId,
@@ -51,7 +82,7 @@ export class ReleasesService {
     }
 
     const updateAvailable = compareSemver(dto.version, latest.version) < 0;
-    const updateRequired = compareSemver(dto.version, latest.minVersion) < 0;
+    const updateRequired = compareSemver(dto.version, latest.minVersion) < 0 || latest.isMandatory;
 
     return {
       updateAvailable,
