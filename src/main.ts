@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { CONFIG } from '@common/constants';
+import { CONFIG, RELEASE_BINARY_MAX_SIZE_BYTES } from '@common/constants';
 import { Logger } from 'nestjs-pino';
 import { SwaggerModule } from '@nestjs/swagger';
 import { GlobalInterceptor } from '@common/interceptors';
@@ -32,7 +32,13 @@ async function bootstrap() {
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
   });
-  await app.register(multipart as any);
+  await app.register(multipart as any, {
+    throwFileSizeLimit: true,
+    limits: {
+      files: 1,
+      fileSize: RELEASE_BINARY_MAX_SIZE_BYTES,
+    },
+  });
 
   app.useLogger(app.get(Logger));
 

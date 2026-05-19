@@ -1,4 +1,6 @@
+import '@fastify/multipart';
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,15 +9,28 @@ import {
   HttpCode,
   Param,
   Post,
+  PayloadTooLargeException,
   Query,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import type { FastifyReply } from 'fastify';
-import { ENDPOINTS } from '@common/constants';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import type { FastifyReply, FastifyRequest } from 'fastify';
+import { ENDPOINTS, ERROR_MESSAGES } from '@common/constants';
 import { AccessTokenGuard, AdminGuard } from '@common/guards';
-import { CheckVersionDto, CreateReleaseDto, ListReleasesDto } from './dto';
+import {
+  CheckVersionDto,
+  CreateReleaseDto,
+  ListReleasesDto,
+  UploadBinaryDto,
+} from './dto';
 import { ReleasesService } from './releases.service';
 
 @Controller(ENDPOINTS.RELEASES.BASE)
@@ -26,9 +41,7 @@ export class ReleasesController {
   @Get(ENDPOINTS.RELEASES.CHECK.ENDPOINT)
   @ApiOperation(ENDPOINTS.RELEASES.CHECK.DOCKS)
   async checkVersion(@Query() dto: CheckVersionDto) {
-    const response = await this.releasesService.checkVersion(dto);
-    console.log({response});
-    return response
+    return await this.releasesService.checkVersion(dto);
   }
 
   @Post(ENDPOINTS.RELEASES.CREATE.ENDPOINT)
@@ -57,6 +70,48 @@ export class ReleasesController {
   ) {
     const xml = await this.releasesService.generateAppcast(appId, platform);
     res.send(xml);
+  }
+
+  @Post(ENDPOINTS.RELEASES.UPLOAD_BINARY.ENDPOINT)
+  @ApiBearerAuth()
+  @ApiOperation(ENDPOINTS.RELEASES.UPLOAD_BINARY.DOCKS)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: { type: 'string', format: 'binary' },
+      },
+    },
+  })
+  @UseGuards(AccessTokenGuard, AdminGuard)
+  async uploadBinary(
+    @Query() dto: UploadBinaryDto,
+    @Req() req: FastifyRequest,
+  ) {
+    let data;
+
+    try {
+      data = await req.file();
+    } catch (error: unknown) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        error.code === 'FST_REQ_FILE_TOO_LARGE'
+      ) {
+        throw new PayloadTooLargeException(ERROR_MESSAGES.STORAGE.FILE_TOO_LARGE);
+      }
+
+      throw error;
+    }
+
+    if (!data) {
+      throw new BadRequestException(ERROR_MESSAGES.STORAGE.FILE_REQUIRED);
+    }
+
+    return this.releasesService.uploadBinary(dto, data);
   }
 
   @Delete(ENDPOINTS.RELEASES.DELETE.ENDPOINT)

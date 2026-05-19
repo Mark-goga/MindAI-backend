@@ -18,4 +18,11 @@ export const ERROR_MESSAGES = {
     VERSION_CONFLICT:
       'A release with this version already exists for this app and platform.',
   },
+  STORAGE: {
+    INVALID_FILE_TYPE:
+      'Invalid file type. Allowed extensions: .exe, .app, .dmg, .zip, .AppImage, .deb, .rpm.',
+    UPLOAD_FAILED: 'Failed to upload file to storage.',
+    FILE_REQUIRED: 'A binary file is required.',
+    FILE_TOO_LARGE: 'Binary file exceeds the 400 MB upload limit.',
+  },
 } as const;

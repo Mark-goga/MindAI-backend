@@ -3,6 +3,8 @@ import { z } from 'zod';
 
 dotenv.config();
 
+export const RELEASE_BINARY_MAX_SIZE_BYTES = 400 * 1024 * 1024;
+
 export enum NODE_ENV {
   PROD = 'prod',
   DEV = 'dev',
@@ -25,6 +27,11 @@ const envSchema = z.object({
     .int()
     .positive()
     .default(60 * 60 * 24 * 30),
+  R2_ACCOUNT_ID: z.string().min(1),
+  R2_ACCESS_KEY_ID: z.string().min(1),
+  R2_SECRET_ACCESS_KEY: z.string().min(1),
+  R2_BUCKET_NAME: z.string().min(1),
+  R2_PUBLIC_URL: z.url(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

@@ -119,5 +119,14 @@ export const ENDPOINTS = {
           'Consumed by auto_updater (Sparkle / WinSparkle) on desktop clients.',
       },
     },
+    UPLOAD_BINARY: {
+      ENDPOINT: 'upload',
+      DOCKS: {
+        summary: 'Upload release binary',
+        description:
+          'Uploads an .exe or .app binary to the public R2 bucket. ' +
+          'Object key: {appId}/{version}/{filename}. Returns the public URL.',
+      },
+    },
   },
 } as const;
